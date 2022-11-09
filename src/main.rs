@@ -11,7 +11,6 @@ const LINE_SAMPLE_COUNT: usize = 813;
 const NEWLINE_BLANK_SAMPLE_COUNT: usize = LINE_SAMPLE_COUNT * 2 / 3;
 
 const PIXELS: (u32, u32) = (384, 288);
-const BLANK_COUNTS: (u32, u32) = (0, 15);
 
 const VBLANK_AVG: u8 = 0xc4;
 const VBLANK_TOLERANCE: u8 = 20;
@@ -42,39 +41,38 @@ impl<R: std::io::Read> std::io::Read for RPReader<R> {
             debug_assert_eq!(bytemuck::bytes_of(&header[1]), b"AMpa");
             debug_assert_eq!(bytemuck::bytes_of(&header[2]), b"ckID");
             debug_assert_eq!(bytemuck::bytes_of(&header[3]), b"v1.0");
-            let id = u32::from_le_bytes(header[4].to_ne_bytes());
+            // let id = u32::from_le_bytes(header[4].to_ne_bytes());
             // dbg!(id);
-            let idk0 = u32::from_le_bytes(header[5].to_ne_bytes());
+            // let idk0 = u32::from_le_bytes(header[5].to_ne_bytes());
             // dbg!(idk0);
-            let idk1 = u32::from_le_bytes(header[6].to_ne_bytes());
-            let idk2 = u32::from_le_bytes(header[7].to_ne_bytes());
+            // let idk2 = u32::from_le_bytes(header[7].to_ne_bytes());
             // dbg!(idk2);
             // bit depth?
-            let bitdepth = header[8];
+            // let bitdepth = header[8];
             // dbg!(bitdepth);
-            let packet_size = header[9];
+            // let packet_size = header[9];
             // dbg!(packet_size);
-            let size = header[10];
+            // let size = header[10];
             // dbg!(size);
             // adc mode?
-            let adc_mode = header[12];
+            // let adc_mode = header[12];
             // dbg!(adc_mode);
-            let channel = header[13];
+            // let channel = header[13];
             // dbg!(channel);
+            let lost_samples = u32::from_le_bytes(header[6].to_ne_bytes());
+            if lost_samples != 0 {
+                // // dbg!(idk1);
+                // // eprint!("a");
 
-            if idk1 != 0 {
-                // dbg!(idk1);
-                // eprint!("a");
-
-                let line_idx = LINE_IDX.get();
-                let line_idx = ((line_idx + idk1 as usize / LINE_SAMPLE_COUNT)
-                    % (PIXELS.1 + BLANK_COUNTS.1) as usize)
-                    + 1;
-                LINE_IDX.set(if line_idx > PIXELS.1 as usize {
-                    0
-                } else {
-                    line_idx
-                });
+                // let line_idx = LINE_IDX.get();
+                // let line_idx = ((line_idx + lost_samples as usize / LINE_SAMPLE_COUNT)
+                //     % (PIXELS.1 + BLANK_COUNTS.1) as usize)
+                //     + 1;
+                // LINE_IDX.set(if line_idx > PIXELS.1 as usize {
+                //     0
+                // } else {
+                //     line_idx
+                // });
                 WAIT_FOR_NEXT.set(true);
             }
 
